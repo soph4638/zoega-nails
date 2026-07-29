@@ -40,8 +40,44 @@ function getNowInCopenhagen(): { date: string; time: string } {
   };
 }
 
+// Lægger et antal dage til en dato gemt som tekst ("YYYY-MM-DD") og
+// returnerer den nye dato i samme format. Bruges til at udregne "om 24 timer".
+function addDaysToDateString(date: string, days: number): string {
+  const [year, month, day] = date.split("-").map(Number);
+  const utcTimestamp = Date.UTC(year, month - 1, day + days);
+  const result = new Date(utcTimestamp);
+  const yyyy = result.getUTCFullYear().toString().padStart(4, "0");
+  const mm = (result.getUTCMonth() + 1).toString().padStart(2, "0");
+  const dd = result.getUTCDate().toString().padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 // Hvor mange minutter der er mellem hver mulige starttid, kunder kan vælge.
 const SLOT_STEP_MINUTES = 30;
+
+// Tjekker om et tidspunkt (dato + starttid i minutter) ligger mindre end 24
+// timer ude i fremtiden i forhold til "cutoff"-tidspunktet (nu + 24 timer).
+// Bruges til at skjule/lukke tider, der ikke længere kan nås at bookes.
+function isSlotTooSoon(
+  date: string,
+  startMinutes: number,
+  cutoffDate: string,
+  cutoffMinutes: number
+): boolean {
+  if (date < cutoffDate) return true;
+  if (date > cutoffDate) return false;
+  return startMinutes < cutoffMinutes;
+}
+
+// Tjekker om et givent tidspunkt ("YYYY-MM-DD" + "HH:mm") ligger mindst 24
+// timer ude i fremtiden regnet fra nu. Bruges bl.a. når en booking oprettes,
+// for at forhindre at nogen booker en tid der ligger under 24-timers-grænsen.
+export function isAtLeast24HoursAway(date: string, time: string): boolean {
+  const { date: nowDate, time: nowTime } = getNowInCopenhagen();
+  const cutoffDate = addDaysToDateString(nowDate, 1);
+  const cutoffMinutes = timeToMinutes(nowTime);
+  return !isSlotTooSoon(date, timeToMinutes(time), cutoffDate, cutoffMinutes);
+}
 
 // -----------------------------------------------------------------------
 // Finder alle ledige starttidspunkter for en given dato og servicevarighed.
@@ -55,8 +91,9 @@ export async function getOpenSlots(
     prisma.booking.findMany({ where: { date } }),
   ]);
 
-  const { date: today, time: nowTime } = getNowInCopenhagen();
-  const nowMinutes = timeToMinutes(nowTime);
+  const { date: nowDate, time: nowTime } = getNowInCopenhagen();
+  const cutoffDate = addDaysToDateString(nowDate, 1);
+  const cutoffMinutes = timeToMinutes(nowTime);
 
   const candidateStarts = new Set<number>();
 
@@ -69,8 +106,8 @@ export async function getOpenSlots(
       start + durationMinutes <= windowEnd;
       start += SLOT_STEP_MINUTES
     ) {
-      // Skjul tidspunkter der allerede er passeret i dag.
-      if (date === today && start <= nowMinutes) continue;
+      // Skjul tidspunkter der ligger mindre end 24 timer ude i fremtiden.
+      if (isSlotTooSoon(date, start, cutoffDate, cutoffMinutes)) continue;
       candidateStarts.add(start);
     }
   }
@@ -130,8 +167,9 @@ export async function getAvailableDatesInRange(
     }),
   ]);
 
-  const { date: today, time: nowTime } = getNowInCopenhagen();
-  const nowMinutes = timeToMinutes(nowTime);
+  const { date: nowDate, time: nowTime } = getNowInCopenhagen();
+  const cutoffDate = addDaysToDateString(nowDate, 1);
+  const cutoffMinutes = timeToMinutes(nowTime);
 
   const windowsByDate = new Map<string, typeof windows>();
   for (const w of windows) {
@@ -161,7 +199,7 @@ export async function getAvailableDatesInRange(
         start + durationMinutes <= windowEnd;
         start += SLOT_STEP_MINUTES
       ) {
-        if (date === today && start <= nowMinutes) continue;
+        if (isSlotTooSoon(date, start, cutoffDate, cutoffMinutes)) continue;
         candidateStarts.add(start);
       }
     }
