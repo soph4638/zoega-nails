@@ -112,3 +112,79 @@ export function rangesOverlap(
 ): boolean {
   return timeToMinutes(aStart) < timeToMinutes(bEnd) && timeToMinutes(aEnd) > timeToMinutes(bStart);
 }
+
+// Finder alle datoer i et datointerval, hvor der er mindst en ledig starttid
+// for den angivne varighed. Bruges til at markere dage med ledige tider i
+// kalenderen paa booking-siden.
+export async function getAvailableDatesInRange(
+  fromDate: string,
+  toDate: string,
+  durationMinutes: number
+): Promise<string[]> {
+  const [windows, bookings] = await Promise.all([
+    prisma.availabilityWindow.findMany({
+      where: { date: { gte: fromDate, lte: toDate } },
+    }),
+    prisma.booking.findMany({
+      where: { date: { gte: fromDate, lte: toDate } },
+    }),
+  ]);
+
+  const { date: today, time: nowTime } = getNowInCopenhagen();
+  const nowMinutes = timeToMinutes(nowTime);
+
+  const windowsByDate = new Map<string, typeof windows>();
+  for (const w of windows) {
+    const list = windowsByDate.get(w.date) ?? [];
+    list.push(w);
+    windowsByDate.set(w.date, list);
+  }
+
+  const bookingsByDate = new Map<string, typeof bookings>();
+  for (const b of bookings) {
+    const list = bookingsByDate.get(b.date) ?? [];
+    list.push(b);
+    bookingsByDate.set(b.date, list);
+  }
+
+  const availableDates: string[] = [];
+
+  for (const [date, dateWindows] of windowsByDate) {
+    const candidateStarts = new Set<number>();
+
+    for (const window of dateWindows) {
+      const windowStart = timeToMinutes(window.startTime);
+      const windowEnd = timeToMinutes(window.endTime);
+
+      for (
+        let start = windowStart;
+        start + durationMinutes <= windowEnd;
+        start += SLOT_STEP_MINUTES
+      ) {
+        if (date === today && start <= nowMinutes) continue;
+        candidateStarts.add(start);
+      }
+    }
+
+    if (candidateStarts.size === 0) continue;
+
+    const dateBookings = bookingsByDate.get(date) ?? [];
+    const bookedRanges = dateBookings.map((booking) => ({
+      start: timeToMinutes(booking.startTime),
+      end: timeToMinutes(booking.endTime),
+    }));
+
+    const hasOpenSlot = [...candidateStarts].some((start) => {
+      const end = start + durationMinutes;
+      return !bookedRanges.some(
+        (booked) => start < booked.end && end > booked.start
+      );
+    });
+
+    if (hasOpenSlot) {
+      availableDates.push(date);
+    }
+  }
+
+  return availableDates.sort();
+}
