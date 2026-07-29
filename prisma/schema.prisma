@@ -1,0 +1,44 @@
+// Denne fil beskriver databasens struktur (de "tabeller" vi gemmer data i).
+// Kør "npx prisma migrate dev" lokalt, når du ændrer i denne fil, for at opdatere databasen.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // POSTGRES_PRISMA_URL bruges til almindelige forespørgsler (går igennem connection pooling).
+  url       = env("POSTGRES_PRISMA_URL")
+  // POSTGRES_URL_NON_POOLING bruges kun til migrationer (skal have en direkte forbindelse).
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+// Et "ledigt tidsrum" som Sophie selv opretter, fx "d. 2. august kl. 09:00-16:00".
+// Kunder kan kun booke tider der ligger inden for et af disse tidsrum.
+model AvailabilityWindow {
+  id        String   @id @default(cuid())
+  date      String // Dato som tekst i formatet "YYYY-MM-DD", fx "2026-08-02"
+  startTime String // Starttidspunkt som tekst, fx "09:00"
+  endTime   String // Sluttidspunkt som tekst, fx "16:00"
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
+// En bekræftet booking foretaget af en kunde.
+model Booking {
+  id           String   @id @default(cuid())
+  date         String // Dato som tekst i formatet "YYYY-MM-DD"
+  startTime    String // fx "10:00"
+  endTime      String // fx "11:30" (beregnet ud fra servicens varighed)
+  serviceId    String // Refererer til et service-id fra lib/services.ts
+  serviceName  String // Gemt som tekst, så bookingen stadig giver mening selvom priser/navne ændres senere
+  priceKr      Int // Prisen i kr. på bookingtidspunktet
+  durationMin  Int // Varighed i minutter på bookingtidspunktet
+  customerName String
+  customerPhone String
+  message      String? // Valgfri besked fra kunden, fx ønsket design
+  createdAt    DateTime @default(now())
+
+  @@index([date])
+}

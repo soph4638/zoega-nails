@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* -----------------------------------------------------------------------
+   Farvepalette og fonte for Zoega Nails
+   Vil du ændre farverne senere? Det gør du bare her - alle steder i appen
+   der bruger fx "bg-accent" eller "text-ink" opdateres automatisk.
+   ----------------------------------------------------------------------- */
+:root {
+  --color-cream: #fbf7f2; /* Baggrund, off-white */
+  --color-blush: #f4dee2; /* Sart rosa */
+  --color-beige: #efe6da; /* Lys beige */
+  --color-ink: #3e3232; /* Blødere alternativ til sort - bruges til tekst */
+  --color-accent: #a9707a; /* Mørkere accentfarve til knapper */
+  --color-accent-dark: #8b4e5a; /* Hover-farve for knapper */
+}
+
+@theme inline {
+  --color-cream: var(--color-cream);
+  --color-blush: var(--color-blush);
+  --color-beige: var(--color-beige);
+  --color-ink: var(--color-ink);
+  --color-accent: var(--color-accent);
+  --color-accent-dark: var(--color-accent-dark);
+  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
