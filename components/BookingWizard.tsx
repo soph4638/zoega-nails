@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { services, formatDuration, getServiceById } from "@/lib/services";
 import { createBooking } from "@/lib/actions/booking";
+import DatePicker from "@/components/DatePicker";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -153,13 +154,7 @@ export default function BookingWizard() {
           </p>
 
           <label className="mb-2 block text-sm font-medium text-ink">Dato</label>
-          <input
-            type="date"
-            value={date}
-            min={minDate}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-xl border border-beige bg-white px-4 py-3 text-ink"
-          />
+          <DatePicker value={date} onChange={setDate} minDate={minDate} serviceId={serviceId} />
 
           <div className="mt-6">
             {loadingSlots && <p className="text-center text-ink/60">Henter ledige tider…</p>}
