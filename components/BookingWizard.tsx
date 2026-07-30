@@ -8,6 +8,8 @@ import DatePicker from "@/components/DatePicker";
 
 type Step = 1 | 2 | 3 | 4;
 
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"];
+
 // Dagens dato i "YYYY-MM-DD"-format, brugt som minimum-dato i datovælgeren.
 function getTodayDateString(): string {
   const now = new Date();
@@ -31,6 +33,8 @@ export default function BookingWizard() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [message, setMessage] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -76,10 +80,46 @@ export default function BookingWizard() {
     };
   }, [date, serviceId]);
 
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    if (file && !ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setImageError("Kun JPG- og PNG-billeder er tilladt.");
+      setImageFile(null);
+      e.target.value = "";
+      return;
+    }
+    setImageError(null);
+    setImageFile(file);
+  }
+
   async function handleConfirm() {
     if (!serviceId || !date || !time) return;
     setSubmitting(true);
     setSubmitError(null);
+    setImageError(null);
+
+    let imageUrl: string | undefined;
+    if (imageFile) {
+      try {
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", imageFile);
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadFormData,
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) {
+          setSubmitting(false);
+          setImageError(uploadData.error ?? "Kunne ikke uploade billedet. Prøv igen.");
+          return;
+        }
+        imageUrl = uploadData.url;
+      } catch {
+        setSubmitting(false);
+        setImageError("Kunne ikke uploade billedet. Prøv igen.");
+        return;
+      }
+    }
 
     const result = await createBooking({
       serviceId,
@@ -88,6 +128,7 @@ export default function BookingWizard() {
       customerName,
       customerPhone,
       message,
+      imageUrl,
     });
 
     setSubmitting(false);
@@ -267,6 +308,18 @@ export default function BookingWizard() {
                 rows={3}
                 className="w-full rounded-xl border border-beige bg-white px-4 py-3 text-ink"
               />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-ink">
+                Billede af ønsket design (valgfrit)
+              </label>
+              <input
+                type="file"
+                accept="image/png, image/jpeg"
+                onChange={handleImageChange}
+                className="w-full rounded-xl border border-beige bg-white px-4 py-3 text-ink file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:text-white"
+              />
+              {imageError && <p className="mt-1 text-sm text-red-600">{imageError}</p>}
             </div>
 
             <p className="rounded-xl bg-beige/60 px-4 py-3 text-sm text-ink/70">
