@@ -116,6 +116,19 @@ export default function BookingWizard() {
       {step === 1 && (
         <section>
           <h1 className="mb-6 text-center font-serif text-3xl text-ink">Vælg tjeneste</h1>
+          <p className="mb-6 rounded-xl bg-blush/40 px-4 py-3 text-center text-sm text-ink/70">
+            Er du i tvivl om, hvilken kategori dit design hører under? Så kontakt mig gerne på
+            Instagram{" "}
+            <a
+              href="https://www.instagram.com/zoeganails"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-accent-dark underline"
+            >
+              @zoeganails
+            </a>{" "}
+            💅
+          </p>
           <div className="flex flex-col gap-3">
             {services.map((service) => (
               <button
