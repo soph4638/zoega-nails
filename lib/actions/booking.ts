@@ -3,7 +3,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getServiceById } from "@/lib/services";
-import { addMinutesToTime, rangesOverlap } from "@/lib/availability";
+import { addMinutesToTime, rangesOverlap, isAtLeast24HoursAway } from "@/lib/availability";
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_REGEX = /^\d{2}:\d{2}$/;
@@ -43,6 +43,15 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
   }
   if (!DATE_REGEX.test(input.date) || !TIME_REGEX.test(input.startTime)) {
     return { success: false, error: "Ugyldig dato eller tidspunkt." };
+  }
+
+  // Tider der ligger mindre end 24 timer ude i fremtiden kan ikke længere
+  // bookes, selv hvis de ellers ligger inden for et ledigt tidsrum.
+  if (!isAtLeast24HoursAway(input.date, input.startTime)) {
+    return {
+      success: false,
+      error: "Denne tid kan desværre ikke længere bookes, da der er mindre end 24 timer til den. Vælg venligst en anden tid.",
+    };
   }
 
   const customerName = input.customerName.trim();
