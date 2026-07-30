@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
   // POSTGRES_PRISMA_URL bruges til almindelige forespørgsler (går igennem connection pooling).
   url       = env("POSTGRES_PRISMA_URL")
   // POSTGRES_URL_NON_POOLING bruges kun til migrationer (skal have en direkte forbindelse).
@@ -27,18 +27,19 @@ model AvailabilityWindow {
 
 // En bekræftet booking foretaget af en kunde.
 model Booking {
-  id           String   @id @default(cuid())
-  date         String // Dato som tekst i formatet "YYYY-MM-DD"
-  startTime    String // fx "10:00"
-  endTime      String // fx "11:30" (beregnet ud fra servicens varighed)
-  serviceId    String // Refererer til et service-id fra lib/services.ts
-  serviceName  String // Gemt som tekst, så bookingen stadig giver mening selvom priser/navne ændres senere
-  priceKr      Int // Prisen i kr. på bookingtidspunktet
-  durationMin  Int // Varighed i minutter på bookingtidspunktet
-  customerName String
-  customerPhone String
-  message      String? // Valgfri besked fra kunden, fx ønsket design
-  createdAt    DateTime @default(now())
+  id             String   @id @default(cuid())
+  date           String // Dato som tekst i formatet "YYYY-MM-DD"
+  startTime      String // fx "10:00"
+  endTime        String // fx "11:30" (beregnet ud fra servicens varighed)
+  serviceId      String // Refererer til et service-id fra lib/services.ts
+  serviceName    String // Gemt som tekst, så bookingen stadig giver mening selvom priser/navne ændres senere
+  priceKr        Int // Prisen i kr. på bookingtidspunktet
+  durationMin    Int // Varighed i minutter på bookingtidspunktet
+  customerName   String
+  customerPhone  String
+  message        String? // Valgfri besked fra kunden, fx ønsket design
+  imageUrl       String? // Valgfrit billede af ønsket design, uploadet til Vercel Blob
+  createdAt      DateTime @default(now())
 
   @@index([date])
 }
