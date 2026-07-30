@@ -15,6 +15,7 @@ export type BookingInput = {
   customerName: string;
   customerPhone: string;
   message?: string;
+  imageUrl?: string;
 };
 
 export type BookingResult =
@@ -60,6 +61,13 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
     return { success: false, error: "Navn og telefonnummer er påkrævet." };
   }
 
+  // Billedet uploades til Vercel Blob af klienten, inden denne action kaldes.
+  // Her tjekker vi blot at den medsendte URL ligner en gyldig blob-URL.
+  const imageUrl =
+    input.imageUrl && /^https:\/\/.+\.public\.blob\.vercel-storage\.com\//.test(input.imageUrl)
+      ? input.imageUrl
+      : null;
+
   const endTime = addMinutesToTime(input.startTime, service.durationMinutes);
 
   try {
@@ -101,6 +109,7 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
             customerName,
             customerPhone,
             message: input.message?.trim() || null,
+            imageUrl,
           },
         });
       },
