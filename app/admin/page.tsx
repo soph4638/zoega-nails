@@ -129,6 +129,21 @@ export default async function AdminPage() {
                         &ldquo;{booking.message}&rdquo;
                       </p>
                     )}
+                    {booking.imageUrl && (
+                      <a
+                        href={booking.imageUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 inline-block"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={booking.imageUrl}
+                          alt="Ønsket design fra kunden"
+                          className="h-24 w-24 rounded-lg border border-beige object-cover"
+                        />
+                      </a>
+                    )}
                   </div>
                   <form action={deleteBooking.bind(null, booking.id)}>
                     <button type="submit" className="shrink-0 text-sm text-red-600 hover:underline">
