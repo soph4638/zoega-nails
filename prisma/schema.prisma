@@ -8,7 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   // POSTGRES_PRISMA_URL bruges til almindelige forespørgsler (går igennem connection pooling).
-  url       = env("POSTGRES_PRISMA_URL")
+  url = env("POSTGRES_PRISMA_URL")
   // POSTGRES_URL_NON_POOLING bruges kun til migrationer (skal have en direkte forbindelse).
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
@@ -27,7 +27,7 @@ model AvailabilityWindow {
 
 // En bekræftet booking foretaget af en kunde.
 model Booking {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   date           String // Dato som tekst i formatet "YYYY-MM-DD"
   startTime      String // fx "10:00"
   endTime        String // fx "11:30" (beregnet ud fra servicens varighed)
@@ -37,9 +37,11 @@ model Booking {
   durationMin    Int // Varighed i minutter på bookingtidspunktet
   customerName   String
   customerPhone  String
+  customerEmail  String // Kundens email - bruges til bekræftelses- og påmindelses-mails
   message        String? // Valgfri besked fra kunden, fx ønsket design
   imageUrl       String? // Valgfrit billede af ønsket design, uploadet til Vercel Blob
-  createdAt      DateTime @default(now())
+  reminderSentAt DateTime? // Tidspunktet hvor påmindelses-mailen blev sendt (så den ikke sendes to gange)
+  createdAt      DateTime  @default(now())
 
   @@index([date])
 }
