@@ -4,9 +4,11 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getServiceById } from "@/lib/services";
 import { addMinutesToTime, rangesOverlap, isAtLeast24HoursAway } from "@/lib/availability";
+import { sendBookingConfirmationEmail } from "@/lib/email";
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_REGEX = /^\d{2}:\d{2}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export type BookingInput = {
   serviceId: string;
@@ -14,6 +16,7 @@ export type BookingInput = {
   startTime: string;
   customerName: string;
   customerPhone: string;
+  customerEmail: string;
   message?: string;
   imageUrl?: string;
 };
@@ -51,14 +54,19 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
   if (!isAtLeast24HoursAway(input.date, input.startTime)) {
     return {
       success: false,
-      error: "Denne tid kan desværre ikke længere bookes, da der er mindre end 24 timer til den. Vælg venligst en anden tid.",
+      error:
+        "Denne tid kan desværre ikke længere bookes, da der er mindre end 24 timer til den. Vælg venligst en anden tid.",
     };
   }
 
   const customerName = input.customerName.trim();
   const customerPhone = input.customerPhone.trim();
-  if (!customerName || !customerPhone) {
-    return { success: false, error: "Navn og telefonnummer er påkrævet." };
+  const customerEmail = input.customerEmail.trim();
+  if (!customerName || !customerPhone || !customerEmail) {
+    return { success: false, error: "Navn, telefonnummer og email er påkrævet." };
+  }
+  if (!EMAIL_REGEX.test(customerEmail)) {
+    return { success: false, error: "Indtast venligst en gyldig emailadresse." };
   }
 
   // Billedet uploades til Vercel Blob af klienten, inden denne action kaldes.
@@ -108,6 +116,7 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
             durationMin: service.durationMinutes,
             customerName,
             customerPhone,
+            customerEmail,
             message: input.message?.trim() || null,
             imageUrl,
           },
@@ -115,6 +124,19 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
     );
+
+    // Sender bekræftelses-mailen efter bookingen er gemt i databasen. Fejler
+    // afsendelsen (fx pga. manglende RESEND_API_KEY), skal det ikke vælte
+    // selve bookingen - kunden har stadig fået sin tid.
+    await sendBookingConfirmationEmail({
+      customerName: booking.customerName,
+      customerEmail: booking.customerEmail,
+      serviceName: booking.serviceName,
+      date: booking.date,
+      startTime: booking.startTime,
+      endTime: booking.endTime,
+      priceKr: booking.priceKr,
+    });
 
     return {
       success: true,
