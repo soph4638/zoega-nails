@@ -21,7 +21,7 @@ function minutesToTime(totalMinutes: number): string {
 
 // Returnerer dagens dato og klokkeslæt i dansk tid ("Europe/Copenhagen"),
 // uanset hvilken tidszone serveren selv kører i (Vercel kører i UTC).
-function getNowInCopenhagen(): { date: string; time: string } {
+export function getNowInCopenhagen(): { date: string; time: string } {
   const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "Europe/Copenhagen",
     year: "numeric",
@@ -42,7 +42,7 @@ function getNowInCopenhagen(): { date: string; time: string } {
 
 // Lægger et antal dage til en dato gemt som tekst ("YYYY-MM-DD") og
 // returnerer den nye dato i samme format. Bruges til at udregne "om 24 timer".
-function addDaysToDateString(date: string, days: number): string {
+export function addDaysToDateString(date: string, days: number): string {
   const [year, month, day] = date.split("-").map(Number);
   const utcTimestamp = Date.UTC(year, month - 1, day + days);
   const result = new Date(utcTimestamp);
