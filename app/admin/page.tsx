@@ -125,6 +125,7 @@ Slet
 </p>
 <p className="mt-2 text-ink">{booking.customerName}</p>
 <p className="text-sm text-ink/70">{booking.customerPhone}</p>
+<p className="text-sm text-ink/70">{booking.customerEmail}</p>
 {booking.message && (
 <p className="mt-2 text-sm italic text-ink/70">
 &ldquo;{booking.message}&rdquo;
