@@ -37,7 +37,7 @@ export const services: Service[] = [
   },
   {
     id: "gel-uden-forlaengelse",
-    name: "Gel uden forlængelse",
+    name: "Helfarve gel uden forlængelse",
     durationMinutes: 60,
     priceKr: 150,
   },
