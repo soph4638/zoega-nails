@@ -377,6 +377,9 @@ className="w-2/3 rounded-full bg-accent px-6 py-4 text-lg font-medium text-white
 </p>
 <p className="mt-1 text-ink/70">{confirmedBooking.priceKr} kr. - betales kontant ved fremmøde</p>
 </div>
+  <p className="mt-4 rounded-xl bg-beige/60 px-4 py-3 text-sm text-ink/70">
+  Du modtager ikke en bekræftelses-sms eller e-mail – men tiden herover er bekræftet og booket.
+  </p>
 
 <p className="mt-6 rounded-xl bg-blush/40 px-4 py-3 text-sm text-ink/70">
 Spørgsmål? Kontakt mig på Instagram{" "}
