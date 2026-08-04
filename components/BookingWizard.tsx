@@ -33,7 +33,6 @@ const [slotsError, setSlotsError] = useState<string | null>(null);
 
 const [customerName, setCustomerName] = useState("");
 const [customerPhone, setCustomerPhone] = useState("");
-const [customerEmail, setCustomerEmail] = useState("");
 const [message, setMessage] = useState("");
 const [imageFile, setImageFile] = useState<File | null>(null);
 const [imageError, setImageError] = useState<string | null>(null);
@@ -129,7 +128,6 @@ date,
 startTime: time,
 customerName,
 customerPhone,
-customerEmail,
 message,
 imageUrl,
 });
@@ -298,16 +296,6 @@ required
 type="tel"
 value={customerPhone}
 onChange={(e) => setCustomerPhone(e.target.value)}
-className="w-full rounded-xl border border-beige bg-white px-4 py-3 text-ink"
-/>
-</div>
-<div>
-<label className="mb-1 block text-sm font-medium text-ink">Email</label>
-<input
-required
-type="email"
-value={customerEmail}
-onChange={(e) => setCustomerEmail(e.target.value)}
 className="w-full rounded-xl border border-beige bg-white px-4 py-3 text-ink"
 />
 </div>
