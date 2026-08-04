@@ -292,7 +292,7 @@ className="w-full rounded-xl border border-beige bg-white px-4 py-3 text-ink"
 />
 </div>
 <div>
-<label className="mb-1 block text-sm font-medium text-ink">Telefonnummer</label>
+<label className="mb-1 block text-sm font-medium text-ink">Telefonnummer/Insta ift. kontakt</label>
 <input
 required
 type="tel"
@@ -310,9 +310,6 @@ value={customerEmail}
 onChange={(e) => setCustomerEmail(e.target.value)}
 className="w-full rounded-xl border border-beige bg-white px-4 py-3 text-ink"
 />
-<p className="mt-1 text-xs text-ink/50">
-Vi sender en bekræftelse og en påmindelse til denne email.
-</p>
 </div>
 <div>
 <label className="mb-1 block text-sm font-medium text-ink">
