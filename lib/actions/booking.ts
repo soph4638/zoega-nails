@@ -16,7 +16,7 @@ export type BookingInput = {
   startTime: string;
   customerName: string;
   customerPhone: string;
-  customerEmail: string;
+  customerEmail?: string;
   message?: string;
   imageUrl?: string;
 };
@@ -61,11 +61,11 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
 
   const customerName = input.customerName.trim();
   const customerPhone = input.customerPhone.trim();
-  const customerEmail = input.customerEmail.trim();
-  if (!customerName || !customerPhone || !customerEmail) {
-    return { success: false, error: "Navn, telefonnummer og email er påkrævet." };
+  const customerEmail = (input.customerEmail ?? "").trim();
+  if (!customerName || !customerPhone) {
+    return { success: false, error: "Navn og telefonnummer er påkrævet." };
   }
-  if (!EMAIL_REGEX.test(customerEmail)) {
+  if (customerEmail && !EMAIL_REGEX.test(customerEmail)) {
     return { success: false, error: "Indtast venligst en gyldig emailadresse." };
   }
 
@@ -128,7 +128,8 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
     // Sender bekræftelses-mailen efter bookingen er gemt i databasen. Fejler
     // afsendelsen (fx pga. manglende RESEND_API_KEY), skal det ikke vælte
     // selve bookingen - kunden har stadig fået sin tid.
-    await sendBookingConfirmationEmail({
+if (booking.customerEmail) {
+  await sendBookingConfirmationEmail({
       customerName: booking.customerName,
       customerEmail: booking.customerEmail,
       serviceName: booking.serviceName,
@@ -137,6 +138,7 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
       endTime: booking.endTime,
       priceKr: booking.priceKr,
     });
+}
 
     return {
       success: true,
