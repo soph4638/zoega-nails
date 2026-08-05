@@ -25,7 +25,7 @@ export default function Home() {
                         </div>
                 
                         <div className="flex flex-col items-center justify-center text-center">
-                                  <div className="bg-[url('/images/gallery/negle-11.jpg')] bg-cover bg-center bg-clip-text font-archivo text-[500px] font-black leading-[0.65] text-transparent sm:text-[680px]">
+                                  <div className="bg-[url('/images/gallery/negle-11.jpg')] bg-[length:60%] bg-no-repeat bg-center bg-clip-text font-archivo text-[500px] font-black leading-[0.65] text-transparent sm:text-[680px]">
                                               Z
                                   </div>
                                   <a
