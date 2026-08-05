@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Playfair_Display, Inter, Archivo } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import "./globals.css";
@@ -9,6 +9,13 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
 });
+
+// Kraftig display-font til det store bogstav og fremhævet kort-tekst
+const archivo = Archivo({
+  variable: "--font-archivo",
+  weight: ["500", "900"],
+  subsets: ["latin"],
+});  
 
 // Ren, letlæselig sans-serif-font til brødtekst
 const inter = Inter({
@@ -28,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="da" className={`${playfair.variable} ${inter.variable} h-full`}>
+        <html lang="da" className={`${playfair.variable} ${inter.variable} ${archivo.variable} h-full`}>
       <body className="flex min-h-full flex-col font-sans text-ink antialiased">
         <Header />
         <main className="flex-1">{children}</main>
