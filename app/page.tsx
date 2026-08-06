@@ -14,12 +14,10 @@ export default function Home() {
                                               Kolding
                                   </p>
                                   <h1 className="max-w-xl font-serif text-4xl italic leading-tight text-ink sm:text-5xl md:text-[3.4rem]">
-                                              Gel forlængelse &amp; custom nail art, skabt til dig
+                                              Tid til et nyt sæt negle?
                                   </h1>
                                   <p className="mt-6 max-w-md text-base leading-relaxed text-ink/60">
-                                              Jeg hedder Sophie Zoega og tager kun én kunde ad gangen, så din
-                                              session bliver rolig, personlig og med tid til at gøre dine negle
-                                              præcis som du drømmer om.
+                                              Book dit næste neglesæt hos Sophie i Kolding, betaling kontant ved fremmøde.
                                   </p>
                                   <BookButton className="mt-8" />
                         </div>
