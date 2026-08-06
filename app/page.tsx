@@ -49,7 +49,7 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="relative mx-auto grid max-w-5xl grid-cols-2 gap-8 px-4 py-10 sm:px-6 sm:py-14 md:block md:min-h-[560px] md:gap-0 md:py-4">
+        <div className="relative mx-auto grid max-w-5xl grid-cols-2 gap-8 px-4 py-10 sm:px-6 sm:py-14 md:block md:min-h-[620px] md:gap-0 md:py-4">
           {/* Simpelt design */}
           <div className="md:absolute md:left-10 md:top-0 md:w-[190px]">
             <div className="relative aspect-[3/4] overflow-hidden">
