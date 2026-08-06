@@ -69,9 +69,9 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Stort custom design */}
+          {/* Med stort design */}
           <div className="md:absolute md:right-[60px] md:top-[60px] md:w-[210px]">
-            <div className="relative aspect-[4/5] overflow-hidden">
+            <div className="relative aspect-square overflow-hidden">
               <Image
                 src={galleryImages[4].src}
                 alt={galleryImages[4].alt}
@@ -90,7 +90,7 @@ export default function Home() {
 
           {/* Med nail art */}
           <div className="md:absolute md:left-[140px] md:top-[300px] md:w-[200px]">
-            <div className="relative aspect-square overflow-hidden">
+            <div className="relative aspect-[4/5] overflow-hidden">
               <Image
                 src={galleryImages[1].src}
                 alt={galleryImages[1].alt}
