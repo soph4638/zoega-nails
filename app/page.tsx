@@ -39,7 +39,7 @@ export default function Home() {
 
       {/* Udvalgte designs: tjenester fra prislisten vist sammen med rigtige billeder */}
       <section className="border-t border-beige">
-        <div className="mx-auto flex max-w-5xl items-end justify-between px-4 pt-12 sm:px-6">
+        <div className="mx-auto flex max-w-5xl items-end justify-between px-4 pt-16 pb-20 sm:px-6">
           <h2 className="font-serif text-3xl italic text-ink">Udvalgte designs</h2>
           <Link
             href="/galleri"
@@ -49,7 +49,7 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="relative mx-auto grid max-w-5xl grid-cols-2 gap-8 px-4 py-10 sm:px-6 sm:py-14 md:block md:min-h-[620px] md:gap-0 md:py-4">
+        <div className="relative mx-auto grid max-w-5xl grid-cols-1 gap-y-32 px-4 pb-16 sm:px-6 sm:pb-20 md:block md:gap-0 md:min-h-[800px] md:pb-0">
           {/* Simpelt design */}
           <div className="md:absolute md:left-10 md:top-0 md:w-[190px]">
             <div className="relative aspect-[3/4] overflow-hidden">
@@ -70,7 +70,7 @@ export default function Home() {
           </div>
 
           {/* Med stort design */}
-          <div className="md:absolute md:right-[60px] md:top-[60px] md:w-[210px]">
+          <div className="md:absolute md:right-[60px] md:top-0 md:w-[210px]">
             <div className="relative aspect-square overflow-hidden">
               <Image
                 src={galleryImages[4].src}
@@ -89,7 +89,7 @@ export default function Home() {
           </div>
 
           {/* Med nail art */}
-          <div className="md:absolute md:left-[140px] md:top-[300px] md:w-[200px]">
+          <div className="md:absolute md:left-[140px] md:top-[380px] md:w-[200px]">
             <div className="relative aspect-[4/5] overflow-hidden">
               <Image
                 src={galleryImages[1].src}
@@ -108,7 +108,7 @@ export default function Home() {
           </div>
 
           {/* Gel uden forlængelse */}
-          <div className="md:absolute md:right-[90px] md:top-[340px] md:w-[175px]">
+          <div className="md:absolute md:right-[90px] md:top-[400px] md:w-[175px]">
             <div className="relative aspect-square overflow-hidden">
               <Image
                 src={galleryImages[16].src}
