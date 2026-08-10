@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getServiceById } from "@/lib/services";
 import { addMinutesToTime, rangesOverlap, isAtLeast24HoursAway } from "@/lib/availability";
-import { sendBookingConfirmationEmail } from "@/lib/email";
+import { sendBookingConfirmationEmail, sendOwnerBookingNotificationEmail } from "@/lib/email";
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_REGEX = /^\d{2}:\d{2}$/;
@@ -125,20 +125,33 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
     );
 
-    // Sender bekræftelses-mailen efter bookingen er gemt i databasen. Fejler
-    // afsendelsen (fx pga. manglende RESEND_API_KEY), skal det ikke vælte
-    // selve bookingen - kunden har stadig fået sin tid.
-if (booking.customerEmail) {
-  await sendBookingConfirmationEmail({
+    // Sender bekræftelses-mailen til kunden efter bookingen er gemt i
+    // databasen. Fejler afsendelsen (fx pga. manglende RESEND_API_KEY), skal
+    // det ikke vælte selve bookingen - kunden har stadig fået sin tid.
+    if (booking.customerEmail) {
+      await sendBookingConfirmationEmail({
+        customerName: booking.customerName,
+        customerEmail: booking.customerEmail,
+        serviceName: booking.serviceName,
+        date: booking.date,
+        startTime: booking.startTime,
+        endTime: booking.endTime,
+        priceKr: booking.priceKr,
+      });
+    }
+
+    // Sender også en notifikations-mail til dig selv (EMAIL_CONFIG.ownerEmail),
+    // så du får besked med det samme når en kunde booker en tid.
+    await sendOwnerBookingNotificationEmail({
       customerName: booking.customerName,
       customerEmail: booking.customerEmail,
+      customerPhone: booking.customerPhone,
       serviceName: booking.serviceName,
       date: booking.date,
       startTime: booking.startTime,
       endTime: booking.endTime,
       priceKr: booking.priceKr,
     });
-}
 
     return {
       success: true,
