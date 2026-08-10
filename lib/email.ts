@@ -14,6 +14,7 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 export type BookingEmailInput = {
   customerName: string;
   customerEmail: string;
+  customerPhone?: string;
   serviceName: string;
   date: string;
   startTime: string;
@@ -73,6 +74,42 @@ export async function sendBookingConfirmationEmail(booking: BookingEmailInput): 
     });
   } catch (error) {
     console.error("Kunne ikke sende bekræftelses-mail:", error);
+  }
+}
+
+// Sendes til dig selv (EMAIL_CONFIG.ownerEmail), hver gang en kunde booker en
+// tid, så du får besked med det samme uden at skulle tjekke admin-siden.
+export async function sendOwnerBookingNotificationEmail(booking: BookingEmailInput): Promise<void> {
+  if (!resend) {
+    console.error("RESEND_API_KEY mangler - notifikations-mail til dig blev ikke sendt.");
+    return;
+  }
+
+  const subject = `Ny booking: ${booking.customerName} - ${booking.date} kl. ${booking.startTime}`;
+
+  const bodyHtml = `
+    <p style="font-size:16px;color:#3a2e2e;">Du har fået en ny booking:</p>
+    <div style="background:#ffffff;border:1px solid #e7ddd3;border-radius:12px;padding:16px;margin:16px 0;">
+      <p style="margin:0;font-size:16px;color:#3a2e2e;"><strong>${booking.serviceName}</strong></p>
+      <p style="margin:4px 0 0;font-size:15px;color:#6b6b6b;">${booking.date} kl. ${booking.startTime}–${booking.endTime}</p>
+      <p style="margin:4px 0 0;font-size:15px;color:#6b6b6b;">${booking.priceKr} kr.</p>
+    </div>
+    <p style="font-size:15px;color:#3a2e2e;">
+      <strong>Kunde:</strong> ${booking.customerName}<br/>
+      <strong>Telefon:</strong> ${booking.customerPhone ?? "(ikke oplyst)"}<br/>
+      <strong>Email:</strong> ${booking.customerEmail || "(ikke oplyst)"}
+    </p>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: `${EMAIL_CONFIG.fromName} <${EMAIL_CONFIG.fromEmail}>`,
+      to: EMAIL_CONFIG.ownerEmail,
+      subject,
+      html: wrapEmailHtml("Ny booking! 💅", bodyHtml),
+    });
+  } catch (error) {
+    console.error("Kunne ikke sende notifikations-mail til dig:", error);
   }
 }
 
