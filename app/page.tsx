@@ -100,10 +100,10 @@ export default function Home() {
               />
             </div>
             <p className="mt-3 font-archivo text-[13px] font-black uppercase text-ink">
-              {services[1].name.replace("Gel forlængelse – ", "")}
+              Forlængelse med stort design            
             </p>
             <p className="font-archivo text-xs font-medium text-accent">
-              Fra {services[1].priceKr} kr · ca. {formatDuration(services[1].durationMinutes)}
+              Fra 300 kr · ca. 2 timer            
             </p>
           </div>
 
