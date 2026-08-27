@@ -21,9 +21,6 @@ export default function Footer() {
           <Link href="/om-mig" className="hover:text-accent">
             Kontakt
           </Link>
-          <Link href="/admin" className="hover:text-accent">
-            Admin
-          </Link>
         </div>
         <p className="mt-4 text-xs text-ink/40">
           © {new Date().getFullYear()} Sophie Zoega
