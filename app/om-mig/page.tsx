@@ -14,7 +14,7 @@ export default function OmMigPage() {
       <div className="mt-8 space-y-5 text-left text-ink/80 leading-relaxed sm:text-lg">
         <p>
           Hej, jeg hedder Sophie Zoega. Jeg laver gel forlængelse og custom
-          nail art fra Kolding, med fokus på kvalitet og godt håndværk i hvet
+          nail art fra Kolding, med fokus på kvalitet og godt håndværk i hvert
           eneste sæt.
         </p>
         <p>
