@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import BookButton from "@/components/BookButton";
 import { galleryImages } from "@/lib/gallery";
-import { services, formatDuration } from "@/lib/services";
 
 export default function Home() {
   return (
@@ -61,12 +60,6 @@ export default function Home() {
                 className="object-cover"
               />
             </div>
-            <p className="mt-3 font-archivo text-[13px] font-black uppercase text-ink">
-              {services[0].name.replace("Gel forlængelse – ", "")}
-            </p>
-            <p className="font-archivo text-xs font-medium text-accent">
-              Fra {services[0].priceKr} kr · ca. {formatDuration(services[0].durationMinutes)}
-            </p>
           </div>
 
           {/* Med stort design */}
@@ -80,12 +73,6 @@ export default function Home() {
                 className="object-cover"
               />
             </div>
-            <p className="mt-3 font-archivo text-[13px] font-black uppercase text-ink">
-              {services[2].name.replace("Gel forlængelse – ", "")}
-            </p>
-            <p className="font-archivo text-xs font-medium text-accent">
-              Fra {services[2].priceKr} kr · ca. {formatDuration(services[2].durationMinutes)}
-            </p>
           </div>
 
           {/* Med nail art */}
@@ -99,12 +86,6 @@ export default function Home() {
                 className="object-cover"
               />
             </div>
-            <p className="mt-3 font-archivo text-[13px] font-black uppercase text-ink">
-              Forlængelse med stort design            
-            </p>
-            <p className="font-archivo text-xs font-medium text-accent">
-              Fra 300 kr · ca. 2 timer            
-            </p>
           </div>
 
           {/* Gel uden forlængelse */}
@@ -118,12 +99,6 @@ export default function Home() {
                 className="object-cover"
               />
             </div>
-            <p className="mt-3 font-archivo text-[13px] font-black uppercase text-ink">
-              {services[3].name}
-            </p>
-            <p className="font-archivo text-xs font-medium text-accent">
-              {services[3].priceKr} kr
-            </p>
           </div>
         </div>
       </section>
