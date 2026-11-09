@@ -27,3 +27,7 @@ export const EMAIL_CONFIG = {
     // booker en tid, så du ikke behøver at tjekke admin-siden hele tiden.
     ownerEmail: "sophieermitnavn@gmail.com",
 };
+
+// Adressen på din hjemmeside. Bruges fx til linket til /admin i mailen, du får
+// ved en ny tidsanmodning. Får du et eget domæne, så ret den her.
+export const SITE_URL = "https://zoega-nails.vercel.app";

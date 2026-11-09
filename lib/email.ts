@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { CONTACT_INFO, EMAIL_CONFIG } from "@/lib/site-config";
+import { CONTACT_INFO, EMAIL_CONFIG, SITE_URL } from "@/lib/site-config";
 
 // Denne fil sender bekræftelses- og påmindelses-mails via Resend.
 // Al tekst i emails herunder kan roligt rettes - det er almindelig dansk tekst
@@ -145,5 +145,70 @@ export async function sendBookingReminderEmail(booking: BookingEmailInput): Prom
     });
   } catch (error) {
     console.error("Kunne ikke sende påmindelses-mail:", error);
+  }
+}
+
+export type TimeRequestEmailInput = BookingEmailInput & {
+  message?: string | null;
+  imageUrl?: string | null;
+};
+
+// Gør tekst som kunden selv har skrevet sikker at vise i en mail.
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// Sendes til dig selv (EMAIL_CONFIG.ownerEmail), når en kunde bruger
+// "Foreslå en tid". Tiden er IKKE booket endnu - du bekræfter/afslår i admin.
+export async function sendOwnerTimeRequestEmail(request: TimeRequestEmailInput): Promise<void> {
+  if (!resend) {
+    console.error("RESEND_API_KEY mangler - mail om ny tidsanmodning blev ikke sendt.");
+    return;
+  }
+
+  const name = escapeHtml(request.customerName);
+  const subject = `Ny tidsanmodning – ${request.customerName}, ${request.date} kl. ${request.startTime}`;
+  const adminUrl = `${SITE_URL}/admin`;
+
+  const bodyHtml = `
+    <p style="font-size:16px;color:#3a2e2e;">En kunde har foreslået en tid. Den er <strong>ikke booket</strong> endnu - bekræft eller afslå den i admin.</p>
+    <div style="background:#ffffff;border:1px solid #e7ddd3;border-radius:12px;padding:16px;margin:16px 0;">
+      <p style="margin:0;font-size:16px;color:#3a2e2e;"><strong>${escapeHtml(request.serviceName)}</strong></p>
+      <p style="margin:4px 0 0;font-size:15px;color:#6b6b6b;">Ønsket tid: ${request.date} kl. ${request.startTime}–${request.endTime}</p>
+      <p style="margin:4px 0 0;font-size:15px;color:#6b6b6b;">${request.priceKr} kr.</p>
+    </div>
+    <p style="font-size:15px;color:#3a2e2e;">
+      <strong>Kunde:</strong> ${name}<br/>
+      <strong>Telefon/Insta:</strong> ${escapeHtml(request.customerPhone ?? "") || "(ikke oplyst)"}<br/>
+      <strong>Email:</strong> ${escapeHtml(request.customerEmail) || "(ikke oplyst)"}
+    </p>
+    ${
+      request.message
+        ? `<p style="font-size:15px;color:#3a2e2e;"><strong>Besked:</strong><br/><em>${escapeHtml(request.message)}</em></p>`
+        : ""
+    }
+    ${
+      request.imageUrl
+        ? `<p style="font-size:15px;"><a href="${escapeHtml(request.imageUrl)}" style="color:#a8677d;">Se billede af ønsket design</a></p>`
+        : ""
+    }
+    <p style="margin-top:24px;">
+      <a href="${adminUrl}" style="display:inline-block;background:#c96f5a;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:999px;font-family:Arial,sans-serif;font-size:15px;">Åbn admin</a>
+    </p>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: `${EMAIL_CONFIG.fromName} <${EMAIL_CONFIG.fromEmail}>`,
+      to: EMAIL_CONFIG.ownerEmail,
+      subject,
+      html: wrapEmailHtml("Ny tidsanmodning 🗓️", bodyHtml),
+    });
+  } catch (error) {
+    console.error("Kunne ikke sende mail om ny tidsanmodning:", error);
   }
 }
