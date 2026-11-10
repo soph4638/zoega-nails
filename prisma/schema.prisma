@@ -45,3 +45,28 @@ model Booking {
 
   @@index([date])
 }
+
+// En tidsanmodning ("Foreslå en tid") fra en kunde, der ikke kunne finde en
+// ledig tid i kalenderen. En anmodning blokerer IKKE kalenderen - først når du
+// trykker "Bekræft" i admin, oprettes en helt almindelig Booking ud fra den.
+model TimeRequest {
+  id            String   @id @default(cuid())
+  status        String   @default("afventer") // "afventer", "bekræftet" eller "afslået"
+  date          String // Ønsket dato, "YYYY-MM-DD"
+  startTime     String // Ønsket starttid, fx "10:00"
+  endTime       String // Beregnet ud fra behandlingens varighed
+  serviceId     String
+  serviceName   String
+  priceKr       Int
+  durationMin   Int
+  customerName  String
+  customerPhone String
+  customerEmail String   @default("")
+  message       String?
+  imageUrl      String?
+  bookingId     String? // Id på den Booking der blev oprettet, når anmodningen blev bekræftet
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status, date])
+}

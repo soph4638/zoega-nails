@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { services, formatDuration, getServiceById } from "@/lib/services";
 import { createBooking } from "@/lib/actions/booking";
+import { createTimeRequest } from "@/lib/actions/time-request";
 import DatePicker from "@/components/DatePicker";
 import { CONTACT_INFO } from "@/lib/site-config";
 
@@ -14,6 +15,17 @@ const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"];
 // Dagens dato i "YYYY-MM-DD"-format, brugt som minimum-dato i datovælgeren.
 function getTodayDateString(): string {
 const now = new Date();
+const year = now.getFullYear();
+const month = String(now.getMonth() + 1).padStart(2, "0");
+const day = String(now.getDate()).padStart(2, "0");
+return `${year}-${month}-${day}`;
+}
+
+// Morgendagens dato i "YYYY-MM-DD" - tidligste dato man kan foreslå en tid på
+// (samme 24-timers-regel som ved en normal booking).
+function getTomorrowDateString(): string {
+const now = new Date();
+now.setDate(now.getDate() + 1);
 const year = now.getFullYear();
 const month = String(now.getMonth() + 1).padStart(2, "0");
 const day = String(now.getDate()).padStart(2, "0");
@@ -43,7 +55,15 @@ const [confirmedBooking, setConfirmedBooking] = useState<
 Extract<Awaited<ReturnType<typeof createBooking>>, { success: true }>["booking"] | null
 >(null);
 
+// "Foreslå en tid": kunden vælger selv dato + klokkeslæt. Det bliver en
+// anmodning, som først er booket, når Sophie har bekræftet den i admin.
+const [isRequest, setIsRequest] = useState(false);
+const [requestDate, setRequestDate] = useState("");
+const [requestTime, setRequestTime] = useState("");
+const [requestSent, setRequestSent] = useState(false);
+
 const selectedService = serviceId ? getServiceById(serviceId) : undefined;
+const requestMinDate = useMemo(() => getTomorrowDateString(), []);
 const minDate = useMemo(() => getTodayDateString(), []);
 
 // Henter ledige tider, hver gang dato eller valgt tjeneste ændres.
@@ -94,6 +114,10 @@ setImageFile(file);
 }
 
 async function handleConfirm() {
+if (isRequest) {
+await handleSendRequest();
+return;
+}
 if (!serviceId || !date || !time) return;
 setSubmitting(true);
 setSubmitError(null);
@@ -145,6 +169,60 @@ return;
 
 setConfirmedBooking(result.booking);
 setStep(4);
+}
+
+// Sender en tidsanmodning ("Foreslå en tid") med de samme felter som en
+// normal booking. Der bookes ikke noget - Sophie bekræfter den selv i admin.
+async function handleSendRequest() {
+if (!serviceId || !requestDate || !requestTime) return;
+setSubmitting(true);
+setSubmitError(null);
+setImageError(null);
+
+let imageUrl: string | undefined;
+if (imageFile) {
+try {
+const uploadFormData = new FormData();
+uploadFormData.append("file", imageFile);
+const uploadRes = await fetch("/api/upload", {
+method: "POST",
+body: uploadFormData,
+});
+const uploadData = await uploadRes.json();
+if (!uploadRes.ok) {
+setSubmitting(false);
+setImageError(uploadData.error ?? "Kunne ikke uploade billedet. Prøv igen.");
+return;
+}
+imageUrl = uploadData.url;
+} catch {
+setSubmitting(false);
+setImageError("Kunne ikke uploade billedet. Prøv igen.");
+return;
+}
+}
+
+try {
+const result = await createTimeRequest({
+serviceId,
+date: requestDate,
+startTime: requestTime,
+customerName,
+customerPhone,
+message,
+imageUrl,
+});
+setSubmitting(false);
+if (!result.success) {
+setSubmitError(result.error);
+return;
+}
+setRequestSent(true);
+setStep(4);
+} catch {
+setSubmitting(false);
+setSubmitError("Anmodningen kunne ikke sendes. Prøv igen.");
+}
 }
 
 return (
@@ -201,7 +279,7 @@ Næste
 </section>
 )}
 
-{step === 2 && selectedService && (
+{step === 2 && selectedService && !isRequest && (
 <section>
 <h1 className="mb-2 text-center font-serif text-3xl text-ink">Vælg dato og tid</h1>
 <p className="mb-6 text-center text-sm text-ink/60">
@@ -239,6 +317,18 @@ time === slot
 )}
 </div>
 
+<button
+type="button"
+onClick={() => {
+setIsRequest(true);
+setSubmitError(null);
+}}
+className="mt-6 w-full rounded-xl bg-blush/40 px-4 py-3 text-center text-sm text-ink/70 transition-colors hover:bg-blush/60"
+>
+Kan du ikke finde en tid, der passer?{" "}
+<span className="font-medium text-accent-dark underline">Foreslå en tid</span>
+</button>
+
 <div className="mt-8 flex gap-3">
 <button
 type="button"
@@ -259,11 +349,81 @@ Næste
 </section>
 )}
 
+{step === 2 && selectedService && isRequest && (
+<section>
+<h1 className="mb-2 text-center font-serif text-3xl text-ink">Foreslå en tid</h1>
+<p className="mb-6 text-center text-sm text-ink/60">
+{selectedService.name} · {formatDuration(selectedService.durationMinutes)}
+</p>
+
+<p className="mb-6 rounded-xl bg-blush/40 px-4 py-3 text-center text-sm text-ink/70">
+Vælg den dag og det klokkeslæt, der passer dig. Det er en anmodning - tiden er først
+booket, når jeg har bekræftet den.
+</p>
+
+<div className="flex flex-col gap-4">
+<div>
+<label htmlFor="request-date" className="mb-1 block text-sm font-medium text-ink">
+Dato
+</label>
+<input
+id="request-date"
+type="date"
+required
+min={requestMinDate}
+value={requestDate}
+onChange={(e) => setRequestDate(e.target.value)}
+className="block w-full min-h-[3.25rem] appearance-none rounded-xl border border-beige bg-white px-4 py-3 text-base text-ink"
+/>
+</div>
+<div>
+<label htmlFor="request-time" className="mb-1 block text-sm font-medium text-ink">
+Klokkeslæt
+</label>
+<input
+id="request-time"
+type="time"
+required
+step={900}
+value={requestTime}
+onChange={(e) => setRequestTime(e.target.value)}
+className="block w-full min-h-[3.25rem] appearance-none rounded-xl border border-beige bg-white px-4 py-3 text-base text-ink"
+/>
+</div>
+{requestDate && requestDate < requestMinDate && (
+<p className="text-center text-sm text-red-600">
+Vælg venligst en dato fra i morgen og frem.
+</p>
+)}
+</div>
+
+<div className="mt-8 flex gap-3">
+<button
+type="button"
+onClick={() => setIsRequest(false)}
+className="w-1/3 rounded-full border border-beige px-4 py-4 text-ink transition-colors hover:border-accent/50"
+>
+Tilbage
+</button>
+<button
+type="button"
+disabled={!requestDate || !requestTime || requestDate < requestMinDate}
+onClick={() => setStep(3)}
+className="w-2/3 rounded-full bg-accent px-6 py-4 text-lg font-medium text-white transition-colors hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-40"
+>
+Næste
+</button>
+</div>
+</section>
+)}
+
 {step === 3 && selectedService && (
 <section>
 <h1 className="mb-2 text-center font-serif text-3xl text-ink">Dine oplysninger</h1>
 <p className="mb-6 text-center text-sm text-ink/60">
-{selectedService.name} · {date} kl. {time}
+{isRequest
+? `Ønsket tid: ${selectedService.name} · ${requestDate} kl. ${requestTime}`
+: `${selectedService.name} · ${date} kl. ${time}`}
 </p>
 
 {submitError && (
@@ -340,10 +500,56 @@ type="submit"
 disabled={submitting}
 className="w-2/3 rounded-full bg-accent px-6 py-4 text-lg font-medium text-white transition-colors hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-60"
 >
-{submitting ? "Bekræfter…" : "Bekræft booking"}
+{isRequest
+? submitting
+? "Sender…"
+: "Send anmodning"
+: submitting
+? "Bekræfter…"
+: "Bekræft booking"}
 </button>
 </div>
 </form>
+</section>
+)}
+
+{step === 4 && requestSent && (
+<section className="text-center">
+<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blush text-3xl text-accent-dark">
+✓
+</div>
+<h1 className="mb-2 font-serif text-3xl text-ink">Anmodning sendt</h1>
+<p className="mb-6 text-ink/70">
+Tak! Din anmodning er sendt. Du hører fra mig, når tiden er bekræftet.
+</p>
+
+<div className="rounded-2xl border border-beige bg-white px-6 py-5 text-left">
+<p className="font-medium text-ink">{selectedService?.name}</p>
+<p className="mt-1 text-ink/70">
+Ønsket tid: {requestDate} kl. {requestTime}
+</p>
+<p className="mt-1 text-sm text-ink/60">Afventer bekræftelse - tiden er ikke booket endnu.</p>
+</div>
+
+<p className="mt-6 rounded-xl bg-blush/40 px-4 py-3 text-sm text-ink/70">
+Spørgsmål? Kontakt mig på Instagram{" "}
+<a
+href={CONTACT_INFO.instagramUrl}
+target="_blank"
+rel="noopener noreferrer"
+className="font-medium text-accent-dark underline"
+>
+{CONTACT_INFO.instagramHandle}
+</a>{" "}
+eller SMS/ring på {CONTACT_INFO.phoneNumber}.
+</p>
+
+<Link
+href="/"
+className="mt-8 inline-block rounded-full bg-accent px-8 py-4 text-lg font-medium text-white transition-colors hover:bg-accent-dark"
+>
+Til forsiden
+</Link>
 </section>
 )}
 

@@ -1,8 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { rangesOverlap } from "@/lib/availability";
+import { sendBookingConfirmationEmail } from "@/lib/email";
 import {
   checkPassword,
   createAdminSession,
@@ -70,5 +73,88 @@ export async function deleteAvailabilityWindow(id: string) {
 export async function deleteBooking(id: string) {
   await requireAdmin();
   await prisma.booking.delete({ where: { id } });
+  revalidatePath("/admin");
+}
+
+// -----------------------------------------------------------------------
+// Tidsanmodninger ("Foreslå en tid")
+// -----------------------------------------------------------------------
+
+// Bekræfter en tidsanmodning: opretter en helt almindelig Booking med de samme
+// oplysninger (samme varighed ud fra behandlingen), så tiden bliver optaget i
+// kalenderen. Kunden får samme bekræftelsesmail som ved en normal booking.
+//
+// allowOverlap: true betyder at du allerede har set advarslen om at tiden
+// overlapper en anden booking, og har valgt at fortsætte alligevel.
+export async function confirmTimeRequest(id: string, allowOverlap: boolean) {
+  await requireAdmin();
+
+  const booking = await prisma.$transaction(async (tx) => {
+    const request = await tx.timeRequest.findUnique({ where: { id } });
+    if (!request || request.status !== "afventer") {
+      throw new Error("Anmodningen findes ikke, eller er allerede behandlet.");
+    }
+
+    if (!allowOverlap) {
+      const sameDayBookings = await tx.booking.findMany({ where: { date: request.date } });
+      const hasConflict = sameDayBookings.some((existing) =>
+        rangesOverlap(request.startTime, request.endTime, existing.startTime, existing.endTime)
+      );
+      if (hasConflict) {
+        throw new Error(
+          "Denne tid overlapper med en anden booking. Gå tilbage til admin og prøv igen."
+        );
+      }
+    }
+
+    const created = await tx.booking.create({
+      data: {
+        date: request.date,
+        startTime: request.startTime,
+        endTime: request.endTime,
+        serviceId: request.serviceId,
+        serviceName: request.serviceName,
+        priceKr: request.priceKr,
+        durationMin: request.durationMin,
+        customerName: request.customerName,
+        customerPhone: request.customerPhone,
+        customerEmail: request.customerEmail,
+        message: request.message,
+        imageUrl: request.imageUrl,
+      },
+    });
+
+    await tx.timeRequest.update({
+      where: { id },
+      data: { status: "bekræftet", bookingId: created.id },
+    });
+
+    return created;
+  }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+
+  // Præcis som ved en normal booking: bekræftelsesmailen sendes kun, hvis
+  // kunden har oplyst en email.
+  if (booking.customerEmail) {
+    await sendBookingConfirmationEmail({
+      customerName: booking.customerName,
+      customerEmail: booking.customerEmail,
+      serviceName: booking.serviceName,
+      date: booking.date,
+      startTime: booking.startTime,
+      endTime: booking.endTime,
+      priceKr: booking.priceKr,
+    });
+  }
+
+  revalidatePath("/admin");
+}
+
+// Afslår en tidsanmodning. Der sendes INGEN mail - du skriver selv til kunden.
+export async function declineTimeRequest(id: string) {
+  await requireAdmin();
+  await prisma.timeRequest.updateMany({
+    where: { id, status: "afventer" },
+    data: { status: "afslået" },
+  });
   revalidatePath("/admin");
 }
