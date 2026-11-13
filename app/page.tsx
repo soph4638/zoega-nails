@@ -15,7 +15,7 @@ const extraServices = services.filter((s) => !featuredServiceIds.includes(s.id))
 const teaser = ["negle-22.jpg", "negle-21.jpg", "negle-20.jpg", "negle-18.jpg", "negle-13.jpg"].map(getGalleryImage);
 
 // Det store billede øverst på forsiden
-const heroImage = getGalleryImage("negle-19.jpg");
+const heroImage = getGalleryImage("negle-20.jpg");
 
 const marqueeWords = ["Gel forlængelse", "Custom nail art", "Kolding", "En kunde ad gangen"];
 
@@ -32,7 +32,7 @@ export default function Home() {
             priority
             sizes="(min-width: 1152px) 1152px, 100vw"
             quality={85}
-            className="object-cover object-[50%_28%]"
+            className="object-cover object-[38%_50%]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
 
