@@ -20,7 +20,7 @@ export type Service = {
 export const services: Service[] = [
   {
     id: "gel-simpelt-design",
-    description: "Holdbar gel forlængelse i én farve eller klassisk french. Rent, simpelt og elegant.",
+    description: "Holdbar gel forlængelse i en farve eller klassisk french. Rent, simpelt og elegant.",
     name: "Gel forlængelse – simpelt design",
     durationMinutes: 60,
     priceKr: 200,
@@ -34,7 +34,7 @@ export const services: Service[] = [
   },
   {
     id: "gel-stort-design",
-    description: "Til de store idéer: detaljeret håndmalet nail art, 3D-detaljer og dit helt eget design.",
+    description: "Til de store ideer: detaljeret håndmalet nail art, 3D-detaljer og dit helt eget design.",
     name: "Gel forlængelse – med stort design",
     durationMinutes: 120,
     priceKr: 300,

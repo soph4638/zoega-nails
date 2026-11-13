@@ -43,7 +43,7 @@ export default function OmMigPage() {
               godt håndværk i hvert eneste sæt.
             </p>
             <p>
-              Jeg tager én kunde ad gangen. Det betyder, at min tid og opmærksomhed er rettet mod dig
+              Jeg tager en kunde ad gangen. Det betyder, at min tid og opmærksomhed er rettet mod dig
               og dine negle, uden stress eller venten. Et sæt tager typisk 1-2 timer, afhængigt af
               hvor detaljeret design du ønsker.
             </p>

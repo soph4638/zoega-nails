@@ -310,7 +310,7 @@ type="button"
 onClick={() => setTime(slot)}
 className={`rounded-xl border px-3 py-3 text-center transition-colors ${
 time === slot
-? "border-accent bg-blush/50 font-medium text-accent-dark"
+? "border-ink bg-ink font-medium text-white"
 : "border-beige bg-white hover:border-accent/50"
 }`}
 >
@@ -327,10 +327,13 @@ onClick={() => {
 setIsRequest(true);
 setSubmitError(null);
 }}
-className="mt-6 w-full rounded-xl bg-blush/40 px-4 py-3 text-center text-sm text-ink/70 transition-colors hover:bg-blush/60"
+className="mt-6 flex w-full items-center justify-between gap-4 rounded-2xl border-2 border-ink bg-white px-5 py-4 text-left transition-all hover:bg-cream active:scale-[0.98]"
 >
-Kan du ikke finde en tid, der passer?{" "}
-<span className="font-medium text-accent-dark underline">Foreslå en tid</span>
+<span>
+<span className="block text-xs text-ink/60">Kan du ikke finde en tid, der passer?</span>
+<span className="mt-0.5 block text-base font-semibold text-ink">Foreslå din egen tid</span>
+</span>
+<span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-lg text-white">→</span>
 </button>
 
 <div className="mt-8 flex gap-3">

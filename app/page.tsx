@@ -14,7 +14,7 @@ const extraServices = services.filter((s) => !featuredServiceIds.includes(s.id))
 // Billeder til galleri-teaseren (asymmetrisk grid)
 const teaser = [galleryImages[13], galleryImages[6], galleryImages[1], galleryImages[11], galleryImages[14]];
 
-const marqueeWords = ["Gel forlængelse", "Custom nail art", "Kolding", "Én kunde ad gangen"];
+const marqueeWords = ["Gel forlængelse", "Custom nail art", "Kolding", "En kunde ad gangen"];
 
 export default function Home() {
   return (
@@ -184,7 +184,7 @@ export default function Home() {
                 <p className="rounded-2xl bg-blush/95 px-5 py-4 text-center font-serif text-2xl italic text-ink">
                   Dit design,
                   <br />
-                  din idé ✦
+                  din ide ✦
                 </p>
               </div>
             </div>
@@ -216,7 +216,7 @@ export default function Home() {
               <span className="block font-sans text-5xl font-extrabold uppercase tracking-tight md:text-6xl">Sophie</span>
             </h2>
             <p className="mt-5 max-w-md leading-relaxed text-ink/70">
-              Jeg laver gel forlængelse og custom nail art i Kolding. Jeg tager én kunde ad gangen,
+              Jeg laver gel forlængelse og custom nail art i Kolding. Jeg tager en kunde ad gangen,
               så du får min fulde opmærksomhed og et sæt, der holder.
             </p>
             <Link

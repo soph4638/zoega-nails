@@ -252,7 +252,7 @@ className="h-24 w-24 rounded-lg border border-beige object-cover"
 confirmMessage={`Er du sikker på at du vil annullere bookingen for ${booking.customerName} (${booking.date} kl. ${booking.startTime})?`}
 className="shrink-0 text-sm text-red-600 hover:underline"
 >
-Annullér
+Annuller
 </ConfirmSubmitButton>
 </form>
 </div>
