@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    // 75 = standard, 85 = ekstra skarp (bruges til det store forsidebillede)
+    qualities: [75, 85],
+  },
 };
 
 export default nextConfig;

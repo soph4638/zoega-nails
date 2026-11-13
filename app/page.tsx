@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import BookButton from "@/components/BookButton";
 import Reveal from "@/components/Reveal";
-import { galleryImages } from "@/lib/gallery";
+import { getGalleryImage } from "@/lib/gallery";
 import { services, formatDuration } from "@/lib/services";
 
 // Behandlinger der vises som store kort på forsiden.
@@ -12,7 +12,10 @@ const featuredServices = services.filter((s) => featuredServiceIds.includes(s.id
 const extraServices = services.filter((s) => !featuredServiceIds.includes(s.id));
 
 // Billeder til galleri-teaseren (asymmetrisk grid)
-const teaser = [galleryImages[13], galleryImages[6], galleryImages[1], galleryImages[11], galleryImages[14]];
+const teaser = ["negle-22.jpg", "negle-21.jpg", "negle-20.jpg", "negle-18.jpg", "negle-13.jpg"].map(getGalleryImage);
+
+// Det store billede øverst på forsiden
+const heroImage = getGalleryImage("negle-19.jpg");
 
 const marqueeWords = ["Gel forlængelse", "Custom nail art", "Kolding", "En kunde ad gangen"];
 
@@ -23,12 +26,13 @@ export default function Home() {
       <section className="relative">
         <div className="relative mx-auto h-[calc(100svh-3.5rem-5.5rem)] min-h-[460px] max-h-[760px] w-full overflow-hidden md:h-[80vh] md:max-w-6xl md:rounded-b-[2.5rem]">
           <Image
-            src="/images/gallery/negle-3.jpg"
-            alt="Lyserøde negle med prikker og gulddetaljer"
+            src={heroImage.src}
+            alt={heroImage.alt}
             fill
             priority
             sizes="(min-width: 1152px) 1152px, 100vw"
-            className="object-cover object-[50%_40%]"
+            quality={85}
+            className="object-cover object-[50%_28%]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
 

@@ -12,7 +12,13 @@ export type GalleryImage = {
   alt: string;
 };
 
+// De nyeste billeder står øverst, så de vises først i galleriet.
 export const galleryImages: GalleryImage[] = [
+  { src: "/images/gallery/negle-22.jpg", alt: "Lyserøde negle med håndmalede pink blomster" },
+  { src: "/images/gallery/negle-21.jpg", alt: "Nude mandelnegle med håndmalede hvide hibiscus-blomster og prikker" },
+  { src: "/images/gallery/negle-20.jpg", alt: "Mælkehvide negle med 3D-blomster, marmor og små guldperler" },
+  { src: "/images/gallery/negle-19.jpg", alt: "Klassisk fransk manicure med lyserød 3D-blomst" },
+  { src: "/images/gallery/negle-18.jpg", alt: "Nude negle med ternet fransk spids" },
   { src: "/images/gallery/negle-1.jpg", alt: "Mandelformede negle med ternet Burberry-inspireret spids" },
   { src: "/images/gallery/negle-2.jpg", alt: "Negle med leopard- og tigerprint samt guld-detaljer" },
   { src: "/images/gallery/negle-3.jpg", alt: "Lyserøde negle med prikker og gulddetaljer" },
@@ -32,11 +38,9 @@ export const galleryImages: GalleryImage[] = [
   { src: "/images/gallery/negle-17.jpg", alt: "Mælkehvide negle med gyldne bladdetaljer" },
 ];
 
-// Billederne der vises på forsiden (de "bedste" billeder) - vælg selv hvilke
-// ved at ændre rækkefølgen eller antallet herunder.
-export const featuredGalleryImages = [
-  galleryImages[7], // negle-8.jpg
-  galleryImages[10], // negle-11.jpg
-  galleryImages[8], // negle-9.jpg
-  galleryImages[6], // negle-7.jpg
-];
+// Hent et billede ud fra filnavnet, fx getGalleryImage("negle-19.jpg")
+export function getGalleryImage(fileName: string): GalleryImage {
+  return (
+    galleryImages.find((image) => image.src.endsWith(`/${fileName}`)) ?? galleryImages[0]
+  );
+}
