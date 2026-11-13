@@ -106,8 +106,8 @@ export default function DatePicker({ value, onChange, minDate, serviceId }: Date
         <button
           type="button"
           onClick={goToPrevMonth}
-          className="rounded-full px-2 py-1 text-ink/60 hover:bg-beige/60"
-          aria-label="Forrige maaned"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-ink/60 hover:bg-beige/60"
+          aria-label="Forrige måned"
         >
           {"<"}
         </button>
@@ -117,8 +117,8 @@ export default function DatePicker({ value, onChange, minDate, serviceId }: Date
         <button
           type="button"
           onClick={goToNextMonth}
-          className="rounded-full px-2 py-1 text-ink/60 hover:bg-beige/60"
-          aria-label="Naeste maaned"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-ink/60 hover:bg-beige/60"
+          aria-label="Næste måned"
         >
           {">"}
         </button>
@@ -149,13 +149,14 @@ export default function DatePicker({ value, onChange, minDate, serviceId }: Date
                 disabled={isPast}
                 onClick={() => onChange(dateStr)}
                 className={[
-                  "mx-auto flex h-9 w-9 items-center justify-center rounded-full text-sm transition-colors",
-                  isPast
-                    ? "cursor-not-allowed text-ink/25"
-                    : hasAvailability
-                      ? "font-semibold text-accent-dark ring-2 ring-accent hover:bg-blush/50"
-                      : "text-ink hover:bg-beige/60",
-                  isSelected ? "bg-accent text-white ring-accent hover:bg-accent" : "",
+                  "mx-auto flex h-10 w-10 items-center justify-center rounded-full text-sm transition-colors",
+                  isSelected
+                    ? "bg-ink font-semibold text-white ring-2 ring-ink"
+                    : isPast
+                      ? "cursor-not-allowed text-ink/25"
+                      : hasAvailability
+                        ? "font-semibold text-ink ring-2 ring-ink hover:bg-blush"
+                        : "text-ink hover:bg-beige/60",
                 ].join(" ")}
               >
                 {day}

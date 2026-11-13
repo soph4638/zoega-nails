@@ -5,8 +5,9 @@ export const CONTACT_INFO = {
     instagramHandle: "@zoeganails",
     // Link til din Instagram-profil.
     instagramUrl: "https://www.instagram.com/zoeganails",
-    // Dit telefonnummer - ret dette til dit eget nummer.
-    phoneNumber: "12 34 56 78",
+    // Dit telefonnummer, fx "12 34 56 78". Lad det stå tomt ("") hvis det
+    // ikke skal vises - så viser siden og mails kun Instagram.
+    phoneNumber: "",
 };
 
 // -----------------------------------------------------------------------

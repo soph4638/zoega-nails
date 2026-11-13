@@ -27,8 +27,9 @@ function contactFooterHtml(): string {
   return `
     <p style="margin-top:24px;font-size:14px;color:#6b6b6b;">
       Spørgsmål? Kontakt mig på Instagram
-      <a href="${CONTACT_INFO.instagramUrl}" style="color:#a8677d;">${CONTACT_INFO.instagramHandle}</a>
-      eller SMS/ring på ${CONTACT_INFO.phoneNumber}.
+      <a href="${CONTACT_INFO.instagramUrl}" style="color:#a8677d;">${CONTACT_INFO.instagramHandle}</a>${
+        CONTACT_INFO.phoneNumber ? ` eller SMS/ring på ${CONTACT_INFO.phoneNumber}` : ""
+      }.
     </p>
   `;
 }

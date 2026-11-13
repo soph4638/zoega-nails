@@ -26,11 +26,11 @@ export default function OmMigPage() {
             <div className="stripes absolute -right-4 -bottom-4 h-full w-full rounded-[2rem]" />
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem]">
               <Image
-                src="/images/gallery/negle-7.jpg"
-                alt="Fransk manicure med håndmalede hvide blomster"
+                src="/images/gallery/negle-21.jpg"
+                alt="Nude mandelnegle med håndmalede hvide hibiscus-blomster og prikker"
                 fill
                 sizes="(min-width: 768px) 45vw, 85vw"
-                className="object-cover"
+                className="object-cover object-[40%_50%]"
               />
             </div>
           </div>

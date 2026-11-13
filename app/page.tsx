@@ -12,7 +12,11 @@ const featuredServices = services.filter((s) => featuredServiceIds.includes(s.id
 const extraServices = services.filter((s) => !featuredServiceIds.includes(s.id));
 
 // Billeder til galleri-teaseren (asymmetrisk grid)
-const teaser = ["negle-22.jpg", "negle-21.jpg", "negle-20.jpg", "negle-18.jpg", "negle-13.jpg"].map(getGalleryImage);
+// (forsidebilledet negle-20 er bevidst ikke med her, så det ikke vises to gange)
+const teaser = ["negle-22.jpg", "negle-21.jpg", "negle-14.jpg", "negle-18.jpg", "negle-12.jpg"].map(getGalleryImage);
+
+// Billedet ved "Hej, jeg er Sophie"
+const aboutImage = getGalleryImage("negle-19.jpg");
 
 // Det store billede øverst på forsiden
 const heroImage = getGalleryImage("negle-20.jpg");
@@ -204,8 +208,8 @@ export default function Home() {
               <div className="stripes absolute -right-4 -bottom-4 h-full w-full rounded-[2rem]" />
               <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem]">
                 <Image
-                  src="/images/gallery/negle-13.jpg"
-                  alt="Fransk manicure med fint 3D-blomsterdesign"
+                  src={aboutImage.src}
+                  alt={aboutImage.alt}
                   fill
                   sizes="(min-width: 768px) 45vw, 85vw"
                   className="object-cover"

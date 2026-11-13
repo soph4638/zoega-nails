@@ -32,6 +32,18 @@ const day = String(now.getDate()).padStart(2, "0");
 return `${year}-${month}-${day}`;
 }
 
+// Skriver en dato som "fredag 20. november" i stedet for "2026-11-20".
+function formatDanishDate(dateStr: string): string {
+const [y, m, d] = dateStr.split("-").map(Number);
+if (!y || !m || !d) return dateStr;
+return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("da-DK", {
+weekday: "long",
+day: "numeric",
+month: "long",
+timeZone: "UTC",
+});
+}
+
 export default function BookingWizard({
 initialServiceId = null,
 }: {
@@ -46,6 +58,8 @@ const [time, setTime] = useState<string | null>(null);
 const [slots, setSlots] = useState<string[]>([]);
 const [loadingSlots, setLoadingSlots] = useState(false);
 const [slotsError, setSlotsError] = useState<string | null>(null);
+// Tælles op for at hente ledige tider igen (fx hvis en tid lige er blevet taget)
+const [slotsRefresh, setSlotsRefresh] = useState(0);
 
 const [customerName, setCustomerName] = useState("");
 const [customerPhone, setCustomerPhone] = useState("");
@@ -103,7 +117,7 @@ if (!cancelled) setLoadingSlots(false);
 return () => {
 cancelled = true;
 };
-}, [date, serviceId]);
+}, [date, serviceId, slotsRefresh]);
 
 function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
 const file = e.target.files?.[0] ?? null;
@@ -167,7 +181,7 @@ setSubmitError(result.error);
 // Tiden er sandsynligvis ikke længere ledig - gå tilbage og hent friske tider.
 setStep(2);
 setTime(null);
-setDate((current) => current); // trigger re-fetch af ledige tider via useEffect
+setSlotsRefresh((n) => n + 1); // henter friske ledige tider
 return;
 }
 
@@ -240,7 +254,7 @@ Trin {step} af 3
 {step === 1 && (
 <section>
 <h1 className="mb-6 text-center font-serif text-3xl text-ink">Vælg tjeneste</h1>
-<p className="mb-6 rounded-xl bg-blush/40 px-4 py-3 text-center text-sm text-ink/70">
+<p className="mb-6 rounded-xl bg-white/70 px-4 py-3 text-center text-sm text-ink/70">
 Er du i tvivl om, hvilken kategori dit design hører under? Så kontakt mig gerne på
 Instagram{" "}
 <a
@@ -289,6 +303,12 @@ Næste
 <p className="mb-6 text-center text-sm text-ink/60">
 {selectedService.name} · {formatDuration(selectedService.durationMinutes)}
 </p>
+
+{submitError && !isRequest && (
+<p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-center text-red-700">
+{submitError}
+</p>
+)}
 
 <label className="mb-2 block text-sm font-medium text-ink">Dato</label>
 <DatePicker value={date} onChange={setDate} minDate={minDate} serviceId={serviceId} />
@@ -363,7 +383,7 @@ Næste
 {selectedService.name} · {formatDuration(selectedService.durationMinutes)}
 </p>
 
-<p className="mb-6 rounded-xl bg-blush/40 px-4 py-3 text-center text-sm text-ink/70">
+<p className="mb-6 rounded-xl bg-white/70 px-4 py-3 text-center text-sm text-ink/70">
 Vælg den dag og det klokkeslæt, der passer dig. Det er en anmodning - tiden er først
 booket, når jeg har bekræftet den.
 </p>
@@ -429,8 +449,8 @@ Næste
 <h1 className="mb-2 text-center font-serif text-3xl text-ink">Dine oplysninger</h1>
 <p className="mb-6 text-center text-sm text-ink/60">
 {isRequest
-? `Ønsket tid: ${selectedService.name} · ${requestDate} kl. ${requestTime}`
-: `${selectedService.name} · ${date} kl. ${time}`}
+? `Ønsket tid: ${selectedService.name} · ${formatDanishDate(requestDate)} kl. ${requestTime}`
+: `${selectedService.name} · ${formatDanishDate(date)} kl. ${time}`}
 </p>
 
 {submitError && (
@@ -447,30 +467,38 @@ handleConfirm();
 className="flex flex-col gap-4"
 >
 <div>
-<label className="mb-1 block text-sm font-medium text-ink">Navn</label>
+<label htmlFor="customer-name" className="mb-1 block text-sm font-medium text-ink">Navn</label>
 <input
+id="customer-name"
 required
 type="text"
+autoComplete="name"
 value={customerName}
 onChange={(e) => setCustomerName(e.target.value)}
 className="w-full rounded-xl border border-beige bg-white px-4 py-3 text-ink"
 />
 </div>
 <div>
-<label className="mb-1 block text-sm font-medium text-ink">Telefonnummer/Insta ift. kontakt</label>
+<label htmlFor="customer-contact" className="mb-1 block text-sm font-medium text-ink">
+Telefonnummer eller Instagram-navn
+</label>
 <input
+id="customer-contact"
 required
-type="tel"
+type="text"
+autoComplete="tel"
+placeholder="Så jeg kan kontakte dig"
 value={customerPhone}
 onChange={(e) => setCustomerPhone(e.target.value)}
 className="w-full rounded-xl border border-beige bg-white px-4 py-3 text-ink"
 />
 </div>
 <div>
-<label className="mb-1 block text-sm font-medium text-ink">
+<label htmlFor="customer-message" className="mb-1 block text-sm font-medium text-ink">
 Besked (valgfri) - fx ønsket design
 </label>
 <textarea
+id="customer-message"
 value={message}
 onChange={(e) => setMessage(e.target.value)}
 rows={3}
@@ -478,10 +506,11 @@ className="w-full rounded-xl border border-beige bg-white px-4 py-3 text-ink"
 />
 </div>
 <div>
-<label className="mb-1 block text-sm font-medium text-ink">
+<label htmlFor="customer-image" className="mb-1 block text-sm font-medium text-ink">
 Billede af ønsket design (valgfrit)
 </label>
 <input
+id="customer-image"
 type="file"
 accept="image/png, image/jpeg"
 onChange={handleImageChange}
@@ -490,7 +519,7 @@ className="w-full rounded-xl border border-beige bg-white px-4 py-3 text-ink fil
 {imageError && <p className="mt-1 text-sm text-red-600">{imageError}</p>}
 </div>
 
-<p className="rounded-xl bg-beige/60 px-4 py-3 text-sm text-ink/70">
+<p className="rounded-xl bg-cream px-4 py-3 text-sm text-ink/70">
 Betaling foregår ved fremmøde.
 </p>
 
@@ -522,7 +551,7 @@ className="w-2/3 rounded-full bg-accent px-6 py-4 text-lg font-medium text-white
 
 {step === 4 && requestSent && (
 <section className="text-center">
-<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blush text-3xl text-accent-dark">
+<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-baby text-3xl text-ink">
 ✓
 </div>
 <h1 className="mb-2 font-serif text-3xl text-ink">Anmodning sendt</h1>
@@ -533,12 +562,12 @@ Tak! Din anmodning er sendt. Du hører fra mig, når tiden er bekræftet.
 <div className="rounded-2xl border border-beige bg-white px-6 py-5 text-left">
 <p className="font-medium text-ink">{selectedService?.name}</p>
 <p className="mt-1 text-ink/70">
-Ønsket tid: {requestDate} kl. {requestTime}
+Ønsket tid: {formatDanishDate(requestDate)} kl. {requestTime}
 </p>
 <p className="mt-1 text-sm text-ink/60">Afventer bekræftelse - tiden er ikke booket endnu.</p>
 </div>
 
-<p className="mt-6 rounded-xl bg-blush/40 px-4 py-3 text-sm text-ink/70">
+<p className="mt-6 rounded-xl bg-white/70 px-4 py-3 text-sm text-ink/70">
 Spørgsmål? Kontakt mig på Instagram{" "}
 <a
 href={CONTACT_INFO.instagramUrl}
@@ -547,8 +576,8 @@ rel="noopener noreferrer"
 className="font-medium text-accent-dark underline"
 >
 {CONTACT_INFO.instagramHandle}
-</a>{" "}
-eller SMS/ring på {CONTACT_INFO.phoneNumber}.
+</a>
+{CONTACT_INFO.phoneNumber ? ` eller SMS/ring på ${CONTACT_INFO.phoneNumber}` : ""}.
 </p>
 
 <Link
@@ -562,7 +591,7 @@ Til forsiden
 
 {step === 4 && confirmedBooking && (
 <section className="text-center">
-<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blush text-3xl text-accent-dark">
+<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-baby text-3xl text-ink">
 ✓
 </div>
 <h1 className="mb-2 font-serif text-3xl text-ink">Din tid er booket!</h1>
@@ -571,15 +600,15 @@ Til forsiden
 <div className="rounded-2xl border border-beige bg-white px-6 py-5 text-left">
 <p className="font-medium text-ink">{confirmedBooking.serviceName}</p>
 <p className="mt-1 text-ink/70">
-{confirmedBooking.date} kl. {confirmedBooking.startTime}–{confirmedBooking.endTime}
+{formatDanishDate(confirmedBooking.date)} kl. {confirmedBooking.startTime}–{confirmedBooking.endTime}
 </p>
 <p className="mt-1 text-ink/70">{confirmedBooking.priceKr} kr. - betales ved fremmøde</p>
 </div>
-  <p className="mt-4 rounded-xl bg-beige/60 px-4 py-3 text-sm text-ink/70">
+  <p className="mt-4 rounded-xl bg-cream px-4 py-3 text-sm text-ink/70">
   Du modtager ikke en bekræftelses-sms eller e-mail – men tiden herover er bekræftet og booket.
   </p>
 
-<p className="mt-6 rounded-xl bg-blush/40 px-4 py-3 text-sm text-ink/70">
+<p className="mt-6 rounded-xl bg-white/70 px-4 py-3 text-sm text-ink/70">
 Spørgsmål? Kontakt mig på Instagram{" "}
 <a
 href={CONTACT_INFO.instagramUrl}
@@ -588,8 +617,8 @@ rel="noopener noreferrer"
 className="font-medium text-accent-dark underline"
 >
 {CONTACT_INFO.instagramHandle}
-</a>{" "}
-eller SMS/ring på {CONTACT_INFO.phoneNumber}.
+</a>
+{CONTACT_INFO.phoneNumber ? ` eller SMS/ring på ${CONTACT_INFO.phoneNumber}` : ""}.
 </p>
 
 <Link
