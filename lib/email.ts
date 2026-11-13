@@ -59,7 +59,7 @@ export async function sendBookingConfirmationEmail(booking: BookingEmailInput): 
     <div style="background:#ffffff;border:1px solid #e7ddd3;border-radius:12px;padding:16px;margin:16px 0;">
       <p style="margin:0;font-size:16px;color:#3a2e2e;"><strong>${booking.serviceName}</strong></p>
       <p style="margin:4px 0 0;font-size:15px;color:#6b6b6b;">${booking.date} kl. ${booking.startTime}–${booking.endTime}</p>
-      <p style="margin:4px 0 0;font-size:15px;color:#6b6b6b;">${booking.priceKr} kr. - betales kontant ved fremmøde</p>
+      <p style="margin:4px 0 0;font-size:15px;color:#6b6b6b;">${booking.priceKr} kr. - betales ved fremmøde</p>
     </div>
     ${contactFooterHtml()}
   `;
@@ -129,7 +129,7 @@ export async function sendBookingReminderEmail(booking: BookingEmailInput): Prom
     <div style="background:#ffffff;border:1px solid #e7ddd3;border-radius:12px;padding:16px;margin:16px 0;">
       <p style="margin:0;font-size:16px;color:#3a2e2e;"><strong>${booking.serviceName}</strong></p>
       <p style="margin:4px 0 0;font-size:15px;color:#6b6b6b;">${booking.date} kl. ${booking.startTime}–${booking.endTime}</p>
-      <p style="margin:4px 0 0;font-size:15px;color:#6b6b6b;">${booking.priceKr} kr. - betales kontant ved fremmøde</p>
+      <p style="margin:4px 0 0;font-size:15px;color:#6b6b6b;">${booking.priceKr} kr. - betales ved fremmøde</p>
     </div>
     <p style="font-size:15px;color:#3a2e2e;">Vi glæder os til at se dig!</p>
     ${contactFooterHtml()}

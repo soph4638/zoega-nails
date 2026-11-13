@@ -32,10 +32,14 @@ const day = String(now.getDate()).padStart(2, "0");
 return `${year}-${month}-${day}`;
 }
 
-export default function BookingWizard() {
+export default function BookingWizard({
+initialServiceId = null,
+}: {
+initialServiceId?: string | null;
+} = {}) {
 const [step, setStep] = useState<Step>(1);
 
-const [serviceId, setServiceId] = useState<string | null>(null);
+const [serviceId, setServiceId] = useState<string | null>(initialServiceId);
 const [date, setDate] = useState<string>("");
 const [time, setTime] = useState<string | null>(null);
 
@@ -257,7 +261,7 @@ type="button"
 onClick={() => setServiceId(service.id)}
 className={`rounded-2xl border px-5 py-4 text-left transition-colors ${
 serviceId === service.id
-? "border-accent bg-blush/50"
+? "border-ink bg-cream"
 : "border-beige bg-white hover:border-accent/50"
 }`}
 >
@@ -484,7 +488,7 @@ className="w-full rounded-xl border border-beige bg-white px-4 py-3 text-ink fil
 </div>
 
 <p className="rounded-xl bg-beige/60 px-4 py-3 text-sm text-ink/70">
-Betaling foregår kontant ved fremmøde.
+Betaling foregår ved fremmøde.
 </p>
 
 <div className="mt-2 flex gap-3">
@@ -566,7 +570,7 @@ Til forsiden
 <p className="mt-1 text-ink/70">
 {confirmedBooking.date} kl. {confirmedBooking.startTime}–{confirmedBooking.endTime}
 </p>
-<p className="mt-1 text-ink/70">{confirmedBooking.priceKr} kr. - betales kontant ved fremmøde</p>
+<p className="mt-1 text-ink/70">{confirmedBooking.priceKr} kr. - betales ved fremmøde</p>
 </div>
   <p className="mt-4 rounded-xl bg-beige/60 px-4 py-3 text-sm text-ink/70">
   Du modtager ikke en bekræftelses-sms eller e-mail – men tiden herover er bekræftet og booket.

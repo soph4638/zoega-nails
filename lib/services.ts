@@ -5,7 +5,8 @@
 // - id: må IKKE ændres for en eksisterende tjeneste (bruges internt), men du
 //   kan sagtens tilføje nye linjer med et nyt id.
 // - durationMinutes: bruges til at beregne hvor meget tid en booking blokerer.
-// - priceKr: prisen i danske kroner, kun betaling kontant ved fremmøde.
+// - priceKr: prisen i danske kroner, betaling ved fremmøde.
+// - description: kort tekst der vises på behandlingskortene på forsiden.
 // -----------------------------------------------------------------------
 
 export type Service = {
@@ -19,24 +20,28 @@ export type Service = {
 export const services: Service[] = [
   {
     id: "gel-simpelt-design",
+    description: "Holdbar gel forlængelse i én farve eller klassisk french. Rent, simpelt og elegant.",
     name: "Gel forlængelse – simpelt design",
     durationMinutes: 60,
     priceKr: 200,
   },
   {
     id: "gel-simpel-nail-art",
+    description: "Forlængelse med lette detaljer, fx prikker, striber, små hjerter eller blomster.",
     name: "Gel forlængelse – med simpel nail art",
     durationMinutes: 90,
     priceKr: 250,
   },
   {
     id: "gel-stort-design",
+    description: "Til de store idéer: detaljeret håndmalet nail art, 3D-detaljer og dit helt eget design.",
     name: "Gel forlængelse – med stort design",
     durationMinutes: 120,
     priceKr: 300,
   },
   {
     id: "gel-uden-forlaengelse",
+    description: "Gel i helfarve på dine egne negle, uden forlængelse.",
     name: "Helfarve gel uden forlængelse",
     durationMinutes: 60,
     priceKr: 150,
