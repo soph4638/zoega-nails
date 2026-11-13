@@ -65,7 +65,7 @@ body {
   }
 }
 .marquee {
-  animation: marquee 45s linear infinite;
+  animation: marquee 90s linear infinite;
 }
 
 /* Bløde fade-in animationer når man scroller (styres af <Reveal>) */
