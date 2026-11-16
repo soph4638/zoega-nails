@@ -23,9 +23,6 @@ export default function Footer() {
           <Link href="/book" className="hover:text-blush">
             Book tid
           </Link>
-          <Link href="/om-mig" className="hover:text-blush">
-            Kontakt
-          </Link>
         </div>
         <p className="mt-4 text-[10px] tracking-[0.15em] text-blush/40">
           © {new Date().getFullYear()} Sophie Zoega
